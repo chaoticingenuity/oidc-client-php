@@ -178,7 +178,8 @@ class Client
         if (
             $this->authorization_response_iss_parameter_supported
             /** && $request->hasAny(['error', 'code', 'id_token']) */
-            && $request->get('iss') !== $this->issuer
+            && $request->has('iss')
+            && ($request->get('iss') !== $this->issuer)
         ) {
             throw new OIDCClientException('Error: validation of iss response parameter failed');
         }
