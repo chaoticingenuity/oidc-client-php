@@ -174,9 +174,11 @@ class Client
     {
         // protect against mix-up attacks
         // experimental feature, see https://tools.ietf.org/html/draft-ietf-oauth-iss-auth-resp-00
+        // feature ratified , see https://datatracker.ietf.org/doc/rfc9207/
         if (
-            $this->authorization_response_iss_parameter_supported && $request->hasAny(['error', 'code', 'id_token'])
-            && $request->get('iss') === $this->issuer
+            $this->authorization_response_iss_parameter_supported
+            /** && $request->hasAny(['error', 'code', 'id_token']) */
+            && $request->get('iss') !== $this->issuer
         ) {
             throw new OIDCClientException('Error: validation of iss response parameter failed');
         }

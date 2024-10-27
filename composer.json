@@ -22,7 +22,8 @@
     "illuminate/collections": ">=8",
     "illuminate/http": ">=8",
     "illuminate/support": ">=8",
-    "web-token/jwt-library": "^4.0.1"
+    "web-token/jwt-library": "^4.0.1",
+    "firebase/php-jwt": "^6.10"
   },
   "require-dev": {
     "roave/security-advisories": "dev-latest",
