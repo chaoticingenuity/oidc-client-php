@@ -26,6 +26,7 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http;
 use JetBrains\PhpStorm\NoReturn;
 use Jose\Component\Core\JWKSet;
 use Maicol07\OpenIDConnect\Traits\Authorization;
@@ -173,7 +174,8 @@ class Client
     {
         // protect against mix-up attacks
         // experimental feature, see https://tools.ietf.org/html/draft-ietf-oauth-iss-auth-resp-00
-        if ($this->authorization_response_iss_parameter_supported && $request->hasAny(['error', 'code', 'id_token'])
+        if (
+            $this->authorization_response_iss_parameter_supported && $request->hasAny(['error', 'code', 'id_token'])
             && $request->get('iss') === $this->issuer
         ) {
             throw new OIDCClientException('Error: validation of iss response parameter failed');
@@ -198,7 +200,7 @@ class Client
      *
      */
     #[NoReturn]
-    public function signOut(#[SensitiveParameter] string $id_token, ?string $redirect = null): void
+    public function signOut(#[SensitiveParameter] string $id_token, ?string $redirect = null, bool $back_channel_process = false): void
     {
         $endpoint = $this->end_session_endpoint;
 
@@ -212,6 +214,12 @@ class Client
         }
 
         $endpoint .= (!str_contains($endpoint, '?') ? '?' : '&') . Arr::query($params);
+
+        if ($back_channel_process === true) {
+            $http_response = Http::get($endpoint);
+            return;
+        }
+
         $this->redirect($endpoint);
     }
 
