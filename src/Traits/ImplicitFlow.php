@@ -33,10 +33,10 @@ trait ImplicitFlow
         $this->access_token = $request->get('access_token');
 
         // Do an OpenID Connect session check
-        if ($request->get('state') !== Session::get('oidc_state')) {
+        if ($request->get('state') !== session()->get('oidc_state')) {
             throw new OIDCClientException('Unable to determine state');
         }
-        Session::remove('oidc_state');
+        session()->forget('oidc_state');
 
         /** @noinspection UnusedFunctionResultInspection */
         $this->loadAndValidateJWT($id_token);

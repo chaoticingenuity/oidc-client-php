@@ -140,10 +140,10 @@ trait Token
         }
 
         // Do an OpenID Connect session check
-        if ($request->get('state') !== Session::get('oidc_state')) {
+        if ($request->get('state') !== session()->get('oidc_state')) {
             throw new OIDCClientException('Unable to determine state');
         }
-        Session::remove('oidc_state');
+        session()->forget('oidc_state');
 
         if (!$token_response->has('id_token')) {
             throw new OIDCClientException('User did not authorize openid scope.');
@@ -181,7 +181,7 @@ trait Token
             unset($data['client_secret'], $data['client_id']);
         }
 
-        $code_verifier = Session::get('oidc_code_verifier');
+        $code_verifier = session()->get('oidc_code_verifier');
         if ($this->enable_pkce && !empty($this->code_challenge_method) && !empty($code_verifier)) {
             $data['code_verifier'] = $code_verifier;
         }

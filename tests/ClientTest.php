@@ -67,7 +67,7 @@ class ClientTest extends TestCase
         $url = $this->client()->getAuthorizationUrl();
         $this->assertIsString($url);
 
-        $code_verifier = Session::get('oidc_code_verifier');
+        $code_verifier = session()->get('oidc_code_verifier');
         echo "Authorization URL: $url\nCode verifier: $code_verifier";
 
         if ($this->client()->verify_ssl && str_starts_with($this->client()->provider_url, "https")) {
@@ -120,8 +120,8 @@ class ClientTest extends TestCase
         }
         $this->assertArrayHasKey('state', $params);
 
-        $params['session_state'] = Session::get('oidc_state');
-        $params['session_nonce'] = Session::get('oidc_nonce');
+        $params['session_state'] = session()->get('oidc_state');
+        $params['session_nonce'] = session()->get('oidc_nonce');
 
         return $params;
     }
@@ -140,10 +140,10 @@ class ClientTest extends TestCase
         }
 
         if (env('OIDC_CODE_VERIFIER')) {
-            Session::set('oidc_code_verifier', env('OIDC_CODE_VERIFIER'));
+            session()->put('oidc_code_verifier', env('OIDC_CODE_VERIFIER'));
         }
         if (env('OIDC_STATE')) {
-            Session::set('oidc_state', env('OIDC_STATE'));
+            session()->put('oidc_state', env('OIDC_STATE'));
         }
         $request = Request::create('', parameters: ['code' => env('OIDC_AUTHORIZATION_CODE', $params['code']), 'state' => env('OIDC_STATE', $params['state'])]);
         $result = $this->invokeMethod($this->client(), 'token', [$request, env('OIDC_AUTHORIZATION_CODE', $params['code'])]);
@@ -214,15 +214,15 @@ class ClientTest extends TestCase
         }
 
         if (env('OIDC_STATE')) {
-            Session::set('oidc_state', env('OIDC_STATE'));
+            session()->put('oidc_state', env('OIDC_STATE'));
         }
 
-        if (!Session::has('oidc_state')) {
-            Session::set('oidc_state', $params['session_state']);
+        if (!session()->has('oidc_state')) {
+            session()->put('oidc_state', $params['session_state']);
         }
 
-        if (!Session::has('oidc_nonce')) {
-            Session::set('oidc_nonce', $params['session_nonce']);
+        if (!session()->has('oidc_nonce')) {
+            session()->put('oidc_nonce', $params['session_nonce']);
         }
 
         $request = Request::create('', parameters: [

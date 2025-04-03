@@ -90,7 +90,7 @@ trait JWT
             /** @noinspection UnusedFunctionResultInspection */
             $claimCheckerManager->check($jwt_payload);
 
-            Session::remove('oidc_nonce');
+            session()->forget('oidc_nonce');
 
             return $this->jwsLoader()->getSerializerManager()->unserialize($jwt);
         } catch (\Firebase\JWT\SignatureInvalidException | Exception $e) {
@@ -104,7 +104,7 @@ trait JWT
         $jws = $this->jwsLoader()->loadAndVerifyWithKeySet($jwt, $this->getJWKs(), $signature);
         /** @noinspection UnusedFunctionResultInspection */
         $claimCheckerManager->check(json_decode($jws->getPayload(), true, 512, JSON_THROW_ON_ERROR));
-        Session::remove('oidc_nonce');
+        session()->forget('oidc_nonce');
 
         return $jws;
     }
@@ -119,7 +119,7 @@ trait JWT
             new AlgorithmChecker(array_map(static fn(JwtSigningAlgorithm $algorithm) => $algorithm->name, $this->id_token_signing_alg_values_supported))
         ];
         if ($this->enable_nonce) {
-            $checkers[] = new NonceChecker(Session::get('oidc_nonce'));
+            $checkers[] = new NonceChecker(session()->get('oidc_nonce'));
         }
         $headerChecker = new HeaderCheckerManager($checkers, [new JWSTokenSupport()]);
 

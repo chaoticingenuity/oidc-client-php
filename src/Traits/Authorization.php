@@ -60,7 +60,7 @@ trait Authorization
 
         // State essentially acts as a session key for OIDC
         $state = $state ?? Str::random();
-        Session::set('oidc_state', $state);
+        session()->put('oidc_state', $state);
 
         $response_types = collect(in_array(ResponseType::CODE, $this->response_types, true) ? $this->response_types : [ResponseType::CODE]);
         if (!$this->allow_implicit_flow) {
@@ -76,7 +76,7 @@ trait Authorization
 
         if ($this->enable_nonce) {
             $nonce = Str::random();
-            Session::set('oidc_nonce', $nonce);
+            session()->put('oidc_nonce', $nonce);
             $params->put('nonce', $nonce);
         }
 
@@ -95,7 +95,7 @@ trait Authorization
         ) {
             // Generate a cryptographically secure code
             $code_verifier = bin2hex(random_bytes(64));
-            Session::set('oidc_code_verifier', $code_verifier);
+            session()->put('oidc_code_verifier', $code_verifier);
             $code_challenge = $this->code_challenge_method === CodeChallengeMethod::S256
                 ? rtrim(strtr(base64_encode(hash($this->code_challenge_method->algorithm(), $code_verifier, true)), '+/', '-_'), '=')
                 : $code_verifier;
