@@ -18,7 +18,6 @@
 
 namespace Maicol07\OpenIDConnect\Traits;
 
-use cse\helpers\Session;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use \Firebase\JWT\JWT as FirebaseJWT;

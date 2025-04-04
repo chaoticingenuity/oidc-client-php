@@ -16,7 +16,6 @@
 
 namespace Maicol07\OpenIDConnect\Traits;
 
-use cse\helpers\Session;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;

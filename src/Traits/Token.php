@@ -18,7 +18,6 @@
 
 namespace Maicol07\OpenIDConnect\Traits;
 
-use cse\helpers\Session;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
