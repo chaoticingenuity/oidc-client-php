@@ -16,7 +16,6 @@
 
 /** @noinspection PhpUnused */
 /** @noinspection PhpPropertyOnlyWrittenInspection */
-
 namespace Maicol07\OpenIDConnect;
 
 use Exception;
@@ -39,6 +38,7 @@ use SensitiveParameter;
 
 class Client
 {
+
     use Authorization;
     use Token;
     use AutoDiscovery;
@@ -46,8 +46,18 @@ class Client
     use ImplicitFlow;
     use JWT;
 
-    private string $access_token;
-    private string $id_token;
+    protected ?string $access_token;
+    protected ?string $id_token;
+
+    public function getAccessToken(): ?string
+{
+    return $this->access_token;
+}
+
+public function getIdToken(): ?string
+{
+    return $this->id_token;
+}
 
     /**
      * @param string|null $client_id Client ID of the application registered on the OpenID Connect Provider (can be null if you use dynamic registration)
@@ -112,9 +122,11 @@ class Client
         public readonly string $client_name = 'OpenID Connect Client',
         public readonly bool $allow_implicit_flow = false,
         public ?JWKSet $jwks = null
-    ) {
+    )
+    {
+
         $this->redirect_uri ??= Request::capture()->url();
-        $this->issuer ??= $this->provider_url;
+        $this->issuer       ??= $this->provider_url;
         $this->autoDiscovery($this->provider_url);
     }
 
@@ -126,8 +138,9 @@ class Client
      */
     public function __set(string $name, mixed $value): void
     {
-        $old_value = $this->{$name};
-        $value = match ($name) {
+
+        $old_value     = $this->{$name};
+        $value         = match ($name) {
             'provider_url' => $this->trimDiscoveryPath(rtrim($value, '/')),
             default => $value
         };
@@ -146,6 +159,7 @@ class Client
      */
     public function authenticate(): bool
     {
+
         $request = Request::capture();
 
         $this->validateCallback($request);
@@ -172,6 +186,7 @@ class Client
      */
     private function validateCallback(Request $request): void
     {
+
         // protect against mix-up attacks
         // experimental feature, see https://tools.ietf.org/html/draft-ietf-oauth-iss-auth-resp-00
         // feature ratified , see https://datatracker.ietf.org/doc/rfc9207/
@@ -186,8 +201,8 @@ class Client
 
         // Do a preemptive check to see if the provider has thrown an error from a previous redirect.
         if ($request->has('error')) {
-            $description = ' Description: ' . $request->get('error_description', 'No description provided');
-            throw new OIDCClientException('Error: ' . $request->get('error') . $description);
+            $description = ' Description: '.$request->get('error_description', 'No description provided');
+            throw new OIDCClientException('Error: '.$request->get('error').$description);
         }
     }
 
@@ -203,8 +218,10 @@ class Client
      *
      */
     #[NoReturn]
+
     public function signOut(#[SensitiveParameter] string $id_token, ?string $redirect = null, bool $back_channel_process = false): void
     {
+
         $endpoint = $this->end_session_endpoint;
 
         if ($redirect === null) {
@@ -216,7 +233,7 @@ class Client
             ];
         }
 
-        $endpoint .= (!str_contains($endpoint, '?') ? '?' : '&') . Arr::query($params);
+        $endpoint .= (!str_contains($endpoint, '?') ? '?' : '&').Arr::query($params);
 
         if ($back_channel_process === true) {
             $http_response = Http::get($endpoint);
@@ -225,7 +242,6 @@ class Client
 
         $this->redirect($endpoint);
     }
-
 
     /**
      * Request RFC8693 Token Exchange
@@ -237,7 +253,9 @@ class Client
         #[SensitiveParameter] string $subjectToken,
         string $subjectTokenType,
         string $audience = ''
-    ): Collection {
+    ): Collection
+    {
+
         $grant_type = 'urn:ietf:params:oauth:grant-type:token-exchange';
 
         $data = [
@@ -271,6 +289,7 @@ class Client
      */
     public function getUserInfo(): UserInfo
     {
+
         $response = $this->client()
             ->withToken($this->access_token)
             ->acceptJson()
@@ -278,7 +297,7 @@ class Client
 
         if (!$response->ok()) {
             throw new OIDCClientException(
-                'The communication to retrieve user data has failed with status code ' . $response->body()
+                'The communication to retrieve user data has failed with status code '.$response->body()
             );
         }
 
@@ -291,9 +310,11 @@ class Client
      * @param string $url The URL to redirect to
      */
     #[NoReturn]
+
     public function redirect(string $url): void
     {
-        header('Location: ' . $url);
+
+        header('Location: '.$url);
         exit;
     }
 
@@ -302,6 +323,7 @@ class Client
      */
     public function getClientCredentials(): array
     {
+
         return [$this->client_id, $this->client_secret];
     }
 
@@ -312,6 +334,7 @@ class Client
      */
     private function client(): PendingRequest
     {
+
         return (new Factory())
             ->withOptions([
                 'connect_timeout' => $this->timeout,
@@ -327,10 +350,12 @@ class Client
      */
     private function getScopeString(array $additional_scopes = []): string
     {
+
         $scopes = [...$this->scopes, ...$additional_scopes];
         return implode(
             ' ',
-            array_map(static fn(string|Scope $scope) => $scope instanceof Scope ? $scope->value : $scope, $scopes)
+            array_map(static fn (string|Scope $scope) => $scope instanceof Scope ? $scope->value : $scope, $scopes)
         );
     }
+
 }

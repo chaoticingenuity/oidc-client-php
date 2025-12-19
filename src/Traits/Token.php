@@ -15,7 +15,6 @@
  */
 
 /** @noinspection PhpUnused */
-
 namespace Maicol07\OpenIDConnect\Traits;
 
 use Illuminate\Http\Client\ConnectionException;
@@ -28,7 +27,14 @@ use SensitiveParameter;
 
 trait Token
 {
-    private ?string $refresh_token;
+
+    protected ?string $refresh_token = null;
+
+    public function getRefreshToken(): ?string
+    {
+
+        return $this->refresh_token;
+    }
 
     /**
      * Requests Access token with refresh token
@@ -38,6 +44,7 @@ trait Token
      */
     public function refreshToken(#[SensitiveParameter] string $refresh_token, bool $send_scopes = true): Collection
     {
+
         $data = [
             'grant_type' => 'refresh_token',
             'refresh_token' => $refresh_token,
@@ -57,7 +64,7 @@ trait Token
             unset($data['client_secret'], $data['client_id']);
         }
 
-        $response = $client->post($this->token_endpoint, $data)->collect();
+        $response = $client->asForm()->post($this->token_endpoint, $data)->collect();
 
         $this->access_token = $response->get('access_token');
         $this->refresh_token = $response->get('refresh_token');
@@ -78,6 +85,7 @@ trait Token
         ?string $client_id = null,
         #[SensitiveParameter] ?string $client_secret = null
     ): Collection {
+
         $data = compact('token');
 
         if ($token_type_hint) {
@@ -106,6 +114,7 @@ trait Token
         ?string $client_id = null,
         #[SensitiveParameter] ?string $client_secret = null
     ): Collection {
+
         $data = compact('token');
 
         if ($token_type_hint) {
@@ -129,6 +138,7 @@ trait Token
      */
     private function token(Request $request, string $code): bool
     {
+
         $token_response = $this->requestTokens($code);
 
         // Throw an error if the server returns one
@@ -165,6 +175,7 @@ trait Token
      */
     private function requestTokens(string $code): Collection
     {
+
         $data = [
             'grant_type' => 'authorization_code',
             'code' => $code,
@@ -187,4 +198,5 @@ trait Token
 
         return $client->asForm()->post($this->token_endpoint, $data)->collect();
     }
+
 }
